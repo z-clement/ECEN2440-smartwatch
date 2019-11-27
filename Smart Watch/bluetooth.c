@@ -13,19 +13,35 @@ extern volatile uint8_t RXFLAG;
 extern volatile uint8_t TXFLAG;
 extern uint8_t bluetoothData;
 
-void EUSCIA2_IRQHandler() {
+//void EUSCIA2_IRQHandler() {
+//    // Rx interrupt
+//    if (EUSCI_A2->IFG & UCRXIFG) {
+//        RXFLAG = 1;
+//        EUSCI_A2->IFG &= ~UCRXIFG;
+//    // Tx interrupt
+//    } else if (EUSCI_A2->IFG & UCTXIFG) {
+//        // TODO: check if the transfer buffer is empty, if it is just turn off interrupt
+//        //       otherwise, call the transmit function on the data in the buffer.
+//        // For now this just turns off the interrupt flag, and turns on the internal flag so the
+//        // transmit function knows it's okay to transmit.
+//        TXFLAG = 1;
+//        EUSCI_A2->IFG &= ~UCTXIFG;
+//    }
+//}
+
+void EUSCIA1_IRQHandler() {
     // Rx interrupt
-    if (EUSCI_A2->IFG & UCRXIFG) {
+    if (EUSCI_A1->IFG & UCRXIFG) {
         RXFLAG = 1;
-        EUSCI_A2->IFG &= ~UCRXIFG;
+        EUSCI_A1->IFG &= ~UCRXIFG;
     // Tx interrupt
-    } else if (EUSCI_A2->IFG & UCTXIFG) {
+    } else if (EUSCI_A1->IFG & UCTXIFG) {
         // TODO: check if the transfer buffer is empty, if it is just turn off interrupt
         //       otherwise, call the transmit function on the data in the buffer.
         // For now this just turns off the interrupt flag, and turns on the internal flag so the
         // transmit function knows it's okay to transmit.
         TXFLAG = 1;
-        EUSCI_A2->IFG &= ~UCTXIFG;
+        EUSCI_A1->IFG &= ~UCTXIFG;
     }
 }
 

@@ -15,7 +15,8 @@ void main(void)
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
 
 	//bluetooth testing
-	config_uart(EUSCI_A2);
+	EUSCI_A_Type * uart_port = EUSCI_A1;
+	config_uart(uart_port);
 
 	__enable_irq();
 
@@ -23,7 +24,7 @@ void main(void)
 	circ_buf_t * helloBuffer = createBuffer(6);
 	uint8_t * string = "Hello";
 	addMultipleToBuffer(helloBuffer, string, 5);
-	uart_transmit_buffer(helloBuffer);
+	uart_transmit_buffer(helloBuffer, uart_port);
 	deleteBuffer(helloBuffer);
 
 	// Test that bluetooth is connected and transmit works

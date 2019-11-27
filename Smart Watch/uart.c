@@ -69,20 +69,20 @@ void config_clock(void) {
     CS->KEY = 0;                         // Lock CS module from unintended access
 }
 
-void uart_transmit_byte(uint8_t data) {
+void uart_transmit_byte(uint8_t data, EUSCI_A_Type * uart_port) {
     // Wait for the transmit buffer to be empty
 //    while(!(EUSCI_A2->IFG  & EUSCI_A_IFG_TXIFG)); // old code, doesn't work very well b/c Tx interrupt is on a lot
     while (TXFLAG != 1);
 
-    EUSCI_A2->TXBUF = data; // send the data being transmitted
+    uart_port->TXBUF = data; // send the data being transmitted
     TXFLAG = 0;
 }
 
-void uart_transmit_buffer(circ_buf_t * circBuffer) {
+void uart_transmit_buffer(circ_buf_t * circBuffer, EUSCI_A_Type * uart_port) {
     int i;
     uint8_t sizeOfBuffer = circBuffer->numElements;
     for (i = 0; i < sizeOfBuffer; i++) {
         uint8_t character = readFromBuffer(circBuffer);
-        uart_transmit_byte(character);
+        uart_transmit_byte(character, uart_port);
     }
 }

@@ -21,8 +21,8 @@ void config_uart_ports(EUSCI_A_Type * uart_port);
 
 void config_clock(void);
 
-void uart_transmit_byte(uint8_t data);
+void uart_transmit_byte(uint8_t data, EUSCI_A_Type * uart_port);
 
-void uart_transmit_buffer(circ_buf_t * circBuffer);
+void uart_transmit_buffer(circ_buf_t * circBuffer, EUSCI_A_Type * uart_port);
 
 #endif /* UART_H_ */
