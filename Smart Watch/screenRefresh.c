@@ -31,7 +31,7 @@ void EUSCIA2_IRQHandler() {
     }
 }
 
-void johndog() {
+void screenReadRegister() {
     if (RXFLAG == 1) {
         screenData = EUSCI_A2->RXBUF;
         RXFLAG = 0;

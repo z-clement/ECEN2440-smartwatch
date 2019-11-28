@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-void johndog(void);
+void screenReadRegister(void);
 
 
 

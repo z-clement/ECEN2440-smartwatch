@@ -3,6 +3,8 @@
 #include "bluetooth.h"
 #include "circularBuf.h"
 #include "screenRefresh.h"
+#include "rtc.h"
+#include "clock.h"
 
 /**
  * main.c
@@ -32,13 +34,13 @@ void main(void)
 	uart_transmit_buffer(helloBuffer, uart_port);
 	deleteBuffer(helloBuffer);
 
-	circ_buf_t * screenBuffer = createBuffer(10);
-	uint8_t * stringBye = " Good Bye";
-	addMultipleToBuffer(screenBuffer,stringBye, 9);
+	circ_buf_t * screenBuffer = createBuffer(18);
+	uint8_t * stringBye = "ÿÿÿn0.val=22ÿÿÿ"; //contols the hour of the screen. n0.val is the hour object ÿÿÿ is the termination character
+	addMultipleToBuffer(screenBuffer,stringBye, 17);
 	uart_transmit_buffer(screenBuffer, uart_portScreen);
 	deleteBuffer(screenBuffer);
 
-
+	clock();
 
 	// Test that bluetooth is connected and transmit works
 //	uart_transmit_byte((uint8_t) 1);
