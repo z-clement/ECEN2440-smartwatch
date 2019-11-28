@@ -47,7 +47,7 @@ void EUSCIA1_IRQHandler() {
 
 void read_register() {
     if (RXFLAG == 1) {
-        bluetoothData = EUSCI_A2->RXBUF;
+        bluetoothData = EUSCI_A1->RXBUF;
         RXFLAG = 0;
     }
 }
