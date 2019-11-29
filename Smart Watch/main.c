@@ -40,7 +40,7 @@ void main(void)
 	uart_transmit_buffer(screenBuffer, uart_portScreen);
 	deleteBuffer(screenBuffer);
 
-	clock();
+
 
 	// Test that bluetooth is connected and transmit works
 //	uart_transmit_byte((uint8_t) 1);
@@ -57,4 +57,9 @@ void main(void)
 //	    int j;
 //	    for (j = 0; j < 1000000; j++);
 //	}
+
+
+	    clock();
+
+
 }

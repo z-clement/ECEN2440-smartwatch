@@ -72,68 +72,71 @@ void clock(void)
     // Initialize variables to hold values read from the RTC registers.
 
     uint8_t sec = 0x00;
-    uint8_t min = 0x00;
+    uint8_t min = RTCMIN;
     uint8_t hour = 0x00;
     uint8_t day = 0x00;
     uint8_t month = 0x00;
     uint32_t year = 0x00;
 
-    P2->DIR |= BIT4;
-    P2->SEL0 |= ~BIT4;
-    P2->SEL1 &= ~BIT4;
-    P2->OUT &= ~BIT4;
+    P2->DIR |= BIT0;
+    //P2->SEL0 |= ~BIT0;
+    //P2->SEL1 &= ~BIT0;
+    P2->OUT &= ~BIT0;
+
+
+    P2->OUT |= BIT0;
 
     while(1){
-        if(MINUTEFLAG == 1){
-                    P2->OUT |= BIT4;
-                    MINUTEFLAG = 0;
+    if(MINUTEFLAG == 1){
+                P2->OUT &= ~BIT0;
+                MINUTEFLAG = 0;
 
-                    sec = RTCSEC;
-                    min = RTCMIN;
-                    hour = RTCHOUR;
-                    day = RTCDAY;
-                    month = RTCMON;
-                    year = RTCYEAR;
-                    RDYFLAG = 0;
-
-                    circ_buf_t * timeBuffer = createBuffer(20);
-                    uint8_t * stringBegin = "n0.val=";                    // 22ÿÿÿ";
-                    addMultipleToBuffer(timeBuffer,stringBegin, 6);
-                    addMultipleToBuffer(timeBuffer, (char)min, 2);
-                    uint8_t * stringEnd = "ÿÿÿ";
-                    addMultipleToBuffer(timeBuffer, stringEnd, 3);
-                    uart_transmit_buffer(timeBuffer, uart_portScreen);
-                    deleteBuffer(timeBuffer);
-
-
+                sec = RTCSEC;
+                min = RTCMIN;
+                hour = RTCHOUR;
+                day = RTCDAY;
+                month = RTCMON;
+                year = RTCYEAR;
+                RDYFLAG = 0;
+/*
+                circ_buf_t * timeBuffer = createBuffer(20);
+                uint8_t * stringBegin = "n0.val=";                    // 22ÿÿÿ";
+                addMultipleToBuffer(timeBuffer,stringBegin, 6);
+                addMultipleToBuffer(timeBuffer, (char)min, 2);
+                uint8_t * stringEnd = "ÿÿÿ";
+                addMultipleToBuffer(timeBuffer, stringEnd, 3);
+                uart_transmit_buffer(timeBuffer, uart_portScreen);
+                deleteBuffer(timeBuffer);
 
 
 
+*/
 
 
 
-        }
-        if(ALARMFLAG == 1){
-                    P2->OUT |= BIT4;
-                    ALARMFLAG = 0;
 
-                    sec = RTCSEC;
-                    min = RTCMIN;
-                    hour = RTCHOUR;
-                    day = RTCDAY;
-                    month = RTCMON;
-                    year = RTCYEAR;
-                    RDYFLAG = 0;
-        }
-        else if(RDYFLAG == 1){
-            sec = RTCSEC;
-            min = RTCMIN;
-            hour = RTCHOUR;
-            day = RTCDAY;
-            month = RTCMON;
-            year = RTCYEAR;
-            RDYFLAG = 0;
-        }
+    }
+    if(ALARMFLAG == 1){
+               //P2->OUT |= BIT4;
+                ALARMFLAG = 0;
+
+                sec = RTCSEC;
+                min = RTCMIN;
+                hour = RTCHOUR;
+                day = RTCDAY;
+                month = RTCMON;
+                year = RTCYEAR;
+                RDYFLAG = 0;
+    }
+    else if(RDYFLAG == 1){
+        sec = RTCSEC;
+        min = RTCMIN;
+        hour = RTCHOUR;
+        day = RTCDAY;
+        month = RTCMON;
+        year = RTCYEAR;
+        RDYFLAG = 0;
     }
 
+    }
 }
