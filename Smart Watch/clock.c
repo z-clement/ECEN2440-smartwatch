@@ -17,6 +17,12 @@ static volatile RTC_C_Calendar realTime;    // For use later for reading the rea
 volatile uint8_t RDYFLAG = 0;
 volatile uint8_t ALARMFLAG = 0;
 volatile uint8_t MINUTEFLAG = 0;
+extern volatile uint8_t sec;
+extern volatile uint8_t min;
+extern volatile uint8_t hour;
+extern volatile uint8_t day;
+extern volatile uint8_t month;
+extern volatile uint32_t year;
 EUSCI_A_Type * uart_portScreen = EUSCI_A2;
 
 void clock(void)
@@ -69,23 +75,23 @@ void clock(void)
 
     RTC_C_startClock();
 
+
+    return;
     // Initialize variables to hold values read from the RTC registers.
-
-    uint8_t sec = 0x00;
-    uint8_t min = RTCMIN;
-    uint8_t hour = 0x00;
-    uint8_t day = 0x00;
-    uint8_t month = 0x00;
-    uint32_t year = 0x00;
-
-    P2->DIR |= BIT0;
-    //P2->SEL0 |= ~BIT0;
-    //P2->SEL1 &= ~BIT0;
-    P2->OUT &= ~BIT0;
+}
+  void clockUpdate(void){
+      // update the clock values
+    MINUTEFLAG = 0;
+    sec = RTCSEC;
+    min = RTCMIN;
+    hour = RTCHOUR;
+    day = RTCDAY;
+    month = RTCMON;
+    year = RTCYEAR;
 
 
-    P2->OUT |= BIT0;
-
+  }
+/*
     while(1){
     if(MINUTEFLAG == 1){
                 P2->OUT &= ~BIT0;
@@ -98,7 +104,7 @@ void clock(void)
                 month = RTCMON;
                 year = RTCYEAR;
                 RDYFLAG = 0;
-/*
+
                 circ_buf_t * timeBuffer = createBuffer(20);
                 uint8_t * stringBegin = "n0.val=";                    // 22ÿÿÿ";
                 addMultipleToBuffer(timeBuffer,stringBegin, 6);
@@ -110,7 +116,7 @@ void clock(void)
 
 
 
-*/
+
 
 
 
@@ -139,4 +145,6 @@ void clock(void)
     }
 
     }
-}
+
+    */
+

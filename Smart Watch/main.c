@@ -14,6 +14,13 @@ uint8_t bluetoothData = 0; // Variable for reading in bluetooth register
 uint8_t screenData = 0;
 volatile uint8_t RXFLAG = 0;
 volatile uint8_t TXFLAG = 0;
+volatile uint8_t sec = 0x00;
+volatile uint8_t min = 0x00;
+volatile uint8_t hour = 0x00;
+volatile uint8_t day = 0x00;
+volatile uint8_t month = 0x00;
+volatile uint32_t year = 0x00;
+extern volatile uint8_t MINUTEFLAG;
 void main(void)
 {
 	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
@@ -59,7 +66,23 @@ void main(void)
 //	}
 
 
-	    clock();
-
+    clock(); // configure the rtc clock and interupts
+    clockUpdate();
+    P2->DIR |= BIT0;
+    P2->DIR |= BIT1;
+    P2->OUT &= ~BIT0;
+    P2->OUT &= ~BIT1;
+    //P2->OUT |= BIT0;
+   // MINUTEFLAG = 1;
+    while(1){
+        if (MINUTEFLAG != 0){
+            clockUpdate();
+            P2->OUT |= BIT0;
+        }
+        else{
+            P2->OUT |= BIT1;
+            //P2->OUT &= ~BIT0;
+        }
+    }
 
 }

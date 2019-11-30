@@ -19,5 +19,7 @@
 
 void clock(void);
 
+void clockUpdate(void);
+
 
 #endif /* CLOCK_H_ */
