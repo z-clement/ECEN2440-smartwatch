@@ -25,4 +25,6 @@ void uart_transmit_byte(uint8_t data, EUSCI_A_Type * uart_port);
 
 void uart_transmit_buffer(circ_buf_t * circBuffer, EUSCI_A_Type * uart_port);
 
+void uart_read_to_buffer(circ_buf_t * circBuffer, EUSCI_A_Type * uart_port);
+
 #endif /* UART_H_ */

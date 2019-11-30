@@ -8,8 +8,8 @@
 #ifndef BLUETOOTH_H_
 #define BLUETOOTH_H_
 
-#include <stdint.h>
+#include "circularBuf.h"
 
-void read_register(void);
+void decode_bluetooth(circ_buf_t * receiveBuffer);
 
 #endif /* BLUETOOTH_H_ */
