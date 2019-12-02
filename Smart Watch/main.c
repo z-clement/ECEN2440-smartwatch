@@ -5,6 +5,7 @@
 #include "screenRefresh.h"
 #include "rtc.h"
 #include "clock.h"
+#include "changeTime.h"
 
 /**
  * main.c
@@ -42,8 +43,8 @@ void main(void)
 	deleteBuffer(helloBuffer);
 
 	circ_buf_t * screenBuffer = createBuffer(18);
-	uint8_t * stringBye = "ÿÿÿn0.val=22ÿÿÿ"; //contols the hour of the screen. n0.val is the hour object ÿÿÿ is the termination character
-	addMultipleToBuffer(screenBuffer,stringBye, 17);
+	uint8_t * stringBye = "ÿÿÿn0.val=4ÿÿÿ"; //contols the hour of the screen. n0.val is the hour object ÿÿÿ is the termination character
+	addMultipleToBuffer(screenBuffer,stringBye, 16);
 	uart_transmit_buffer(screenBuffer, uart_portScreen);
 	deleteBuffer(screenBuffer);
 
@@ -68,16 +69,29 @@ void main(void)
 
     clock(); // configure the rtc clock and interupts
     clockUpdate();
+    changeHour(hour);
+    changeMin(min);
     P2->DIR |= BIT0;
     P2->DIR |= BIT1;
     P2->OUT &= ~BIT0;
     P2->OUT &= ~BIT1;
     //P2->OUT |= BIT0;
    // MINUTEFLAG = 1;
+
+    circ_buf_t * timeBuffer = createBuffer(20);
+    uint8_t * stringBegin = "ÿÿÿn0.val=";                    // 22ÿÿÿ";
+    addMultipleToBuffer(timeBuffer,stringBegin, 10);
+    addToBuffer(timeBuffer, (min + 48));
+    uint8_t * stringEnd = "ÿÿÿ";
+    addMultipleToBuffer(timeBuffer, stringEnd, 3);
+    uart_transmit_buffer(timeBuffer, uart_portScreen);
+    deleteBuffer(timeBuffer);
     while(1){
         if (MINUTEFLAG != 0){
             clockUpdate();
             P2->OUT |= BIT0;
+            changeHour(hour);
+            changeMin(min);
         }
         else{
             P2->OUT |= BIT1;

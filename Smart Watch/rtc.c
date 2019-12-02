@@ -114,14 +114,23 @@ void RTC_C_IRQHandler(void){
     if(RTC_C->CTL0 & RTCTEVIFG){
             MINUTEFLAG = 1;
             RDYFLAG = 1;
-            RTC_C->CTL0 &= ~RTCTEVIFG;
+            //RTC_C->CTL0 &= ~RTCTEVIFG;
+            RTC_C_clearInterruptFlag(RTC_C_CTL0_TEVIE);
     }
     if(RTC_C->CTL0 & RTCAIFG){
             ALARMFLAG = 1;
             RDYFLAG = 1;
     }
-    else if(RTC_C->CTL0 & RTCRDYIFG){
-        RDYFLAG = 1;
+    else if(RTC_C->PS1CTL &  RT1PSIFG){
+
+       RDYFLAG = 1;
+       RTC_C->PS1CTL &= (~RT1PSIFG);
+    }
+
+    /* else if(RTC_C->CTL0 & RTCRDYIFG){
+        //RDYFLAG = 1;
+        RTC_C_clearInterruptFlag(RTC_C_CTL0_RDYIE);
 //        RTC_C->CTL0 &= ~RTCRDYIFG;
     }
+*/
 }

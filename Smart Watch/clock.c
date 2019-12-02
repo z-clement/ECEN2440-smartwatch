@@ -33,8 +33,8 @@ void clock(void)
     const RTC_C_Calendar currentTime =
     {
             0x00,
-            0x03,
-            0x22,
+            0x58,
+            0x23,
             0x06,
             0x12,
             0x11,
@@ -63,9 +63,8 @@ void clock(void)
 
     // Enable interrupts.
 
-    RTC_C_enableInterrupt(
-            RTC_C_CTL0_RDYIE | RTC_C_CTL0_TEVIE
-                        | RTC_C_CTL0_AIE);
+    RTC_C_enableInterrupt(RTC_C_CTL0_TEVIE | RTC_C_CTL0_AIE);
+    RTC_C->PS1CTL |= (RTC_C_PS1CTL_RT1PSIE | RTC_C_PS1CTL_RT1IP__128);
 
     NVIC_EnableIRQ(RTC_C_IRQn);
     NVIC_SetPriority(RTC_C_IRQn, 2);
