@@ -1,38 +1,93 @@
 #include "msp.h"
 #include "uart.h"
 #include "bluetooth.h"
-//#include <stdio.h>
+#include "circularBuf.h"
+#include "rtc.h"
 
 /**
  * main.c
  */
 
-uint8_t bluetoothData = 0; // Variable for reading in bluetooth register
-volatile uint8_t RXFLAG = 0;
-volatile uint8_t TXFLAG = 0;
+// Flags for handling interrupts so we don't get stuck in an IRQHandler for too long
+volatile uint8_t RDYFLAG = 0;
+volatile uint8_t ALARMFLAG = 0;
+volatile uint8_t TIMERFLAG = 0;
+volatile uint8_t RX2FLAG = 0;
+volatile uint8_t TX2FLAG = 0;
+volatile uint8_t RX1FLAG = 0;
+volatile uint8_t TX1FLAG = 0;
+volatile uint8_t CLOCKSETFLAG = 0;
+volatile uint8_t ALARMSETFLAG = 0;
+volatile uint8_t TIMERSETFLAG = 0;
+
+EUSCI_A_Type * bluetooth_port = EUSCI_A2;
+
 void main(void)
 {
-	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
+    // Stop watchdog timer.
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
 
-	//bluetooth testing
-	config_uart();
+    __enable_irq();
 
-	__enable_irq();
+    // Configure UART for bluetooth
+    config_uart(bluetooth_port);
 
-	// Test that bluetooth is connected and transmit works
-//	uart_transmit_byte((uint8_t) 1);
+    // Configure output pins for RTC alarm/timer
+    config_rtc_gpio();
 
-	while(1) {
-	    read_register();
-//        printf("Value received on rx pin: %x\n", bluetoothRx);
-	}
+    // Create a circular buffer for bluetooth receiving
+    circ_buf_t * bluetoothBuffer = createBuffer(5);
 
-	// Test for sending 1 byte of data (WORKS!)
-//	int i;
-//	for (i = 0; i < 255; i++) {
-//	    uart_transmit_byte((uint8_t) i);
-//	    // delay;
-//	    int j;
-//	    for (j = 0; j < 1000000; j++);
-//	}
+    // Create a buffer to send a bluetooth message when an alarm fires
+    circ_buf_t * alarmBuffer = createBuffer(6);
+
+    // For debugging, a buffer to send the time over bluetooth
+    circ_buf_t * timeBuffer = createBuffer(9);
+
+    // For debugging, sends "Test!" over bluetooth
+    circ_buf_t * testBuffer = createBuffer(6);
+    addMultipleToBuffer(testBuffer, "Test!", 5);
+    uart_transmit_buffer(testBuffer, bluetooth_port);
+    deleteBuffer(testBuffer);
+
+    while(1){
+        // Read in from bluetooth
+        if (RX2FLAG) {
+            uart_read_to_buffer(bluetoothBuffer, bluetooth_port);
+            if (isBufferFull(bluetoothBuffer)) {
+                decode_bluetooth(bluetoothBuffer);
+            }
+        }
+        // Alarm or timer goes off
+        if (ALARMFLAG) {
+           P2->OUT |= BIT4;
+           ALARMFLAG = 0;
+
+           // Check if it was a timer, if so disable alarms
+           if (TIMERFLAG) {
+               RTC_C->AMINHR = 0x0000;
+               RTC_C->ADOWDAY = 0x0000;
+               TIMERFLAG = 0;
+               addMultipleToBuffer(alarmBuffer, "Timer", 5);
+           } else {
+               addMultipleToBuffer(alarmBuffer, "Alarm", 5);
+           }
+
+           // Send a message over bluetooth indciating the alarm/timer finished
+           uart_transmit_buffer(alarmBuffer, bluetooth_port);
+        }
+        // Second ticked by, time must be updated
+        if (RDYFLAG) {
+            // For debugging, transmit current time as SEC_MIN_HOUR_DAY_MONTH_YEAR in one bluetooth transmission
+            addToBuffer(timeBuffer, RTCSEC);
+            addToBuffer(timeBuffer, RTCMIN);
+            addToBuffer(timeBuffer, RTCHOUR);
+            addToBuffer(timeBuffer, RTCDAY);
+            addToBuffer(timeBuffer, RTCMON);
+            addToBuffer(timeBuffer, (RTCYEAR >> 8));
+            addToBuffer(timeBuffer, RTCYEAR);
+            uart_transmit_buffer(timeBuffer, bluetooth_port);
+            RDYFLAG = 0;
+        }
+    }
 }
