@@ -18,8 +18,8 @@
 #include "clock.h"
 
 
-void changeHour(uint8_t hour);
-void changeMin(uint8_t min);
+void changeHour(EUSCI_A_Type * uartportScreen);
+void changeMin(EUSCI_A_Type * uartportScreen);
 
 
 #endif /* CHANGETIME_H_ */

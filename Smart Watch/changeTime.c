@@ -15,12 +15,14 @@
 #include "clock.h"
 
 
+extern volatile uint8_t min;
+extern volatile uint8_t hour;
+extern volatile uint8_t DOW;
+extern volatile uint8_t day;
 
 
 
-EUSCI_A_Type * screenTransmit = EUSCI_A2;
-
-changeHour(uint8_t hour){
+changeHour(EUSCI_A_Type * uartportScreen){
     int hourTen;
     int hourOne;
 
@@ -31,7 +33,7 @@ changeHour(uint8_t hour){
         addToBuffer(timeBuffer, (hour + 48));
         uint8_t * stringEnd = "ÿÿÿ";
         addMultipleToBuffer(timeBuffer, stringEnd, 3);
-        uart_transmit_buffer(timeBuffer, screenTransmit);
+        uart_transmit_buffer(timeBuffer, uartportScreen);
         deleteBuffer(timeBuffer);
     }
     else{
@@ -44,7 +46,7 @@ changeHour(uint8_t hour){
         addToBuffer(timeBuffer, (hourOne + 48));
         uint8_t * stringEnd = "ÿÿÿ";
         addMultipleToBuffer(timeBuffer, stringEnd, 3);
-        uart_transmit_buffer(timeBuffer, screenTransmit);
+        uart_transmit_buffer(timeBuffer, uartportScreen);
         deleteBuffer(timeBuffer);
     }
 
@@ -52,7 +54,7 @@ changeHour(uint8_t hour){
 
 
 
-changeMin(uint8_t min){
+changeMin(EUSCI_A_Type * uartportScreen){
     int minOne;
     int minTen;
     minOne = min & 0x0F;
@@ -63,7 +65,7 @@ changeMin(uint8_t min){
     addToBuffer(timeBuffer, (minTen + 48));
     uint8_t * stringEnd = "ÿÿÿ";
     addMultipleToBuffer(timeBuffer, stringEnd, 3);
-    uart_transmit_buffer(timeBuffer, screenTransmit);
+    uart_transmit_buffer(timeBuffer, uartportScreen);
     deleteBuffer(timeBuffer);
 
     circ_buf_t * minOneBuffer = createBuffer(20);
@@ -72,10 +74,39 @@ changeMin(uint8_t min){
     addToBuffer(timeBuffer, (minOne + 48));
     stringEnd = "ÿÿÿ";
     addMultipleToBuffer(minOneBuffer, stringEnd, 3);
-    uart_transmit_buffer(minOneBuffer, screenTransmit);
+    uart_transmit_buffer(minOneBuffer, uartportScreen);
     deleteBuffer(minOneBuffer);
 
 }
 
 
+changeDOW(EUSCI_A_Type * uartportScreen){
+    uint8_t * dayString;
+
+    if(DOW == 0){
+        dayString = "\"Sun\"";
+    }
+    else if(DOW == 1){
+        dayString = "\"Mon\"";
+    }
+    else if(DOW == 2){
+            dayString = "\"Tue\"";
+        }
+    else if(DOW == 3){
+                dayString = "\"Wed\"";
+            }
+    else if(DOW == 4){
+                    dayString = "\"Thu\"";
+                }
+    else if(DOW == 5){
+                        dayString = "\"Fri\"";
+                    }
+    else if(DOW == 6){
+                            dayString = "\"Sat\"";
+                        }
+
+
+
+
+}
 

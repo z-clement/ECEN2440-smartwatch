@@ -21,6 +21,7 @@ volatile uint8_t hour = 0x00;
 volatile uint8_t day = 0x00;
 volatile uint8_t month = 0x00;
 volatile uint32_t year = 0x00;
+volatile uint8_t dow = 0x00;
 extern volatile uint8_t MINUTEFLAG;
 void main(void)
 {
@@ -69,8 +70,8 @@ void main(void)
 
     clock(); // configure the rtc clock and interupts
     clockUpdate();
-    changeHour(hour);
-    changeMin(min);
+    changeHour(uart_portScreen);
+    changeMin(uart_portScreen);
     P2->DIR |= BIT0;
     P2->DIR |= BIT1;
     P2->OUT &= ~BIT0;
@@ -90,8 +91,8 @@ void main(void)
         if (MINUTEFLAG != 0){
             clockUpdate();
             P2->OUT |= BIT0;
-            changeHour(hour);
-            changeMin(min);
+            changeHour(uart_portScreen);
+            changeMin(uart_portScreen);
         }
         else{
             P2->OUT |= BIT1;

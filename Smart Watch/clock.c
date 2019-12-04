@@ -22,6 +22,7 @@ extern volatile uint8_t min;
 extern volatile uint8_t hour;
 extern volatile uint8_t day;
 extern volatile uint8_t month;
+extern volatile uint8_t dow;
 extern volatile uint32_t year;
 EUSCI_A_Type * uart_portScreen = EUSCI_A2;
 
@@ -87,6 +88,7 @@ void clock(void)
     day = RTCDAY;
     month = RTCMON;
     year = RTCYEAR;
+    dow = RTCDOW;
 
 
   }
