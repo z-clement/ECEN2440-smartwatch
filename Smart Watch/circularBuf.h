@@ -1,3 +1,4 @@
+
 /*
  * circularBuf.h
  *
@@ -22,6 +23,8 @@ circ_buf_t* createBuffer(uint32_t length);
 
 void deleteBuffer(circ_buf_t * circBuffer);
 
+void clearBuffer(circ_buf_t * circBuffer);
+
 void addToBuffer(circ_buf_t * circBuffer, uint8_t data);
 
 void addMultipleToBuffer(circ_buf_t * circBuffer, uint8_t * string, uint8_t length);
@@ -33,3 +36,4 @@ uint8_t isBufferFull(circ_buf_t * circBuffer);
 uint8_t isBufferEmpty(circ_buf_t * circBuffer);
 
 #endif /* CIRCULARBUF_H_ */
+

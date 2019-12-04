@@ -1,3 +1,4 @@
+
 /*
  * circularBuf.c
  *
@@ -26,6 +27,17 @@ circ_buf_t * createBuffer(uint32_t size) {
 void deleteBuffer(circ_buf_t * circBuffer) {
     free(circBuffer->buffer);
     free(circBuffer);
+}
+
+// Clear all the data in the circular buffer and reset head & tail
+void clearBuffer(circ_buf_t * circBuffer) {
+    uint32_t i;
+    for (i = 0; i < circBuffer->size; i++) {
+        circBuffer->buffer[i] = 0;
+    }
+    circBuffer->head = 0;
+    circBuffer->tail = 0;
+    circBuffer->numElements = 0;
 }
 
 // Add item to the head of the circular buffer, only succeeds if it's not full
