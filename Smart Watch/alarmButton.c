@@ -12,7 +12,7 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
-#include "clock.h"
+//#include "clock.h"
 #include "changeTime.h"
 
 gotoAlarmButton(EUSCI_A_Type * uartportScreen){

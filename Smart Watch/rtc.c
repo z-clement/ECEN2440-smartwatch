@@ -14,6 +14,14 @@ extern volatile uint8_t RDYFLAG;
 extern volatile uint8_t ALARMFLAG;
 extern volatile uint8_t MINUTEFLAG;
 
+extern volatile uint8_t sec;
+extern volatile uint8_t min;
+extern volatile uint8_t hour;
+extern volatile uint8_t day;
+extern volatile uint8_t month;
+extern volatile uint8_t dow;
+extern volatile uint32_t year;
+
 
 // Configure the real time clock with the given start time, and BCD or Hex format
 void RTC_config(const RTC_C_Calendar *calendarTime, uint_fast16_t formatSelect){
@@ -97,6 +105,10 @@ void config_rtc_gpio(void) {
     P2->SEL0 |= ~BIT4;
     P2->SEL1 &= ~BIT4;
     P2->OUT &= ~BIT4;
+    P4->DIR |= BIT7;
+    P4->SEL0 |= ~BIT7;
+    P4->SEL1 &= ~BIT7;
+    P4->OUT &= ~BIT7;
 }
 
 
@@ -120,3 +132,17 @@ void RTC_C_IRQHandler(void){
     }
 }
 
+
+void clockUpdate(void){
+    // update the clock values
+  MINUTEFLAG = 0;
+  sec = RTCSEC;
+  min = RTCMIN;
+  hour = RTCHOUR;
+  day = RTCDAY;
+  month = RTCMON;
+  year = RTCYEAR;
+  dow = RTCDOW;
+
+
+}

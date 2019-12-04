@@ -12,12 +12,12 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
-#include "clock.h"
+//#include "clock.h"
 
 
 extern volatile uint8_t min;
 extern volatile uint8_t hour;
-extern volatile uint8_t DOW;
+extern volatile uint8_t dow;
 extern volatile uint8_t day;
 
 
@@ -80,28 +80,28 @@ changeMin(EUSCI_A_Type * uartportScreen){
 }
 
 
-changeDOW(EUSCI_A_Type * uartportScreen){
+changedow(EUSCI_A_Type * uartportScreen){
     uint8_t * dayString;
 
-    if(DOW == 0){
+    if(dow == 0){
         dayString = "\"Sun\"";
     }
-    else if(DOW == 1){
+    else if(dow == 1){
         dayString = "\"Mon\"";
     }
-    else if(DOW == 2){
+    else if(dow == 2){
             dayString = "\"Tue\"";
         }
-    else if(DOW == 3){
+    else if(dow == 3){
                 dayString = "\"Wed\"";
             }
-    else if(DOW == 4){
+    else if(dow == 4){
                     dayString = "\"Thu\"";
                 }
-    else if(DOW == 5){
+    else if(dow == 5){
                         dayString = "\"Fri\"";
                     }
-    else if(DOW == 6){
+    else if(dow == 6){
                             dayString = "\"Sat\"";
                         }
 

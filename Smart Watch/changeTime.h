@@ -15,7 +15,7 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
-#include "clock.h"
+//#include "clock.h"
 
 
 void changeHour(EUSCI_A_Type * uartportScreen);

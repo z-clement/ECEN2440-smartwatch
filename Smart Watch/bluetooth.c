@@ -16,7 +16,7 @@
 extern EUSCI_A_Type * bluetooth_port;
 extern volatile RTC_C_Calendar * realTime;
 extern volatile uint8_t TIMERFLAG;
-extern volatile uint8_t RX2FLAG;
+extern volatile uint8_t RX1FLAG;
 
 // Decode the bluetooth transmission for RTC functionality
 void decode_bluetooth(circ_buf_t * receiveBuffer) {
@@ -38,7 +38,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in clock settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(19);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
@@ -58,7 +58,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in alarm settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(13);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
@@ -74,7 +74,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in timer settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(5);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
