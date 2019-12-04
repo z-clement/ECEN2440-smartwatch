@@ -16,6 +16,11 @@ volatile uint8_t RX2FLAG = 0;
 volatile uint8_t TX2FLAG = 0;
 volatile uint8_t RX1FLAG = 0;
 volatile uint8_t TX1FLAG = 0;
+volatile uint8_t CLOCKSETFLAG = 0;
+volatile uint8_t ALARMSETFLAG = 0;
+volatile uint8_t TIMERSETFLAG = 0;
+
+EUSCI_A_Type * bluetooth_port = EUSCI_A2;
 
 void main(void)
 {
@@ -25,14 +30,13 @@ void main(void)
     __enable_irq();
 
     // Configure UART for bluetooth
-    EUSCI_A_Type * bluetooth_port = EUSCI_A2;
     config_uart(bluetooth_port);
 
     // Configure output pins for RTC alarm/timer
     config_rtc_gpio();
 
     // Create a circular buffer for bluetooth receiving
-    circ_buf_t * bluetoothBuffer = createBuffer(8);
+    circ_buf_t * bluetoothBuffer = createBuffer(5);
 
     // Create a buffer to send a bluetooth message when an alarm fires
     circ_buf_t * alarmBuffer = createBuffer(6);
@@ -47,7 +51,6 @@ void main(void)
     deleteBuffer(testBuffer);
 
     while(1){
-
         // Read in from bluetooth
         if (RX2FLAG) {
             uart_read_to_buffer(bluetoothBuffer, bluetooth_port);
@@ -55,7 +58,6 @@ void main(void)
                 decode_bluetooth(bluetoothBuffer);
             }
         }
-
         // Alarm or timer goes off
         if (ALARMFLAG) {
            P2->OUT |= BIT4;
@@ -74,7 +76,6 @@ void main(void)
            // Send a message over bluetooth indciating the alarm/timer finished
            uart_transmit_buffer(alarmBuffer, bluetooth_port);
         }
-
         // Second ticked by, time must be updated
         if (RDYFLAG) {
             // For debugging, transmit current time as SEC_MIN_HOUR_DAY_MONTH_YEAR in one bluetooth transmission
