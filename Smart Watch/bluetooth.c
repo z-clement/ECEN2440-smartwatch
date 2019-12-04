@@ -17,13 +17,7 @@ extern volatile RTC_C_Calendar * realTime;
 extern volatile uint8_t TIMERFLAG;
 extern volatile uint8_t RX2FLAG;
 
-/**
- *  Decode the bluetooth transmission for RTC functionality
- *  All bluetooth transmissions must be 8 bytes long, and start with 0x00, 0x01, or 0x02 to determine functionality.
- *  The bytes following the first bit depend on the functionality needed, setting the clock requires all 8,
- *  setting an alarm requires only 6, and the timer requires only 2. If the functionality requires less than
- *  8 bytes, the end can be padded with anything, but all 8 bytes must be filled before the decoder will work.
- */
+// Decode the bluetooth transmission for RTC functionality
 void decode_bluetooth(circ_buf_t * receiveBuffer) {
     // receiveBuffer holds a string with the command we want to perform
     uint8_t * command = receiveBuffer->buffer;
