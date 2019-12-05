@@ -124,7 +124,7 @@ void set_rtc_clock(circ_buf_t * valueBuffer) {
          0x00,       // Seconds
          minutes,    // Minutes
          hours,      // Hours
-         dow,        // Day of week (unused in our watch)
+         dow,        // Day of week
          day,        // Day of month
          month,      // Month
          year        // Year

@@ -15,7 +15,7 @@
 //#include "clock.h"
 #include "changeTime.h"
 
-gotoAlarmButton(EUSCI_A_Type * uartportScreen){
+void gotoAlarmButton(EUSCI_A_Type * uartportScreen){
     circ_buf_t * alarmButtonBuff = createBuffer(20);
     uint8_t * string = "ÿÿÿpage 2ÿÿÿ";                    // 22ÿÿÿ";
     addMultipleToBuffer(alarmButtonBuff,string, 12);
@@ -24,8 +24,16 @@ gotoAlarmButton(EUSCI_A_Type * uartportScreen){
 
 }
 
+void gotoHome(EUSCI_A_Type * uartportScreen){
+    circ_buf_t * alarmButtonBuff = createBuffer(20);
+    uint8_t * string = "ÿÿÿpage 0ÿÿÿ";                    // 22ÿÿÿ";
+    addMultipleToBuffer(alarmButtonBuff,string, 12);
+    uart_transmit_buffer(alarmButtonBuff, uartportScreen);
+    deleteBuffer(alarmButtonBuff);
 
-alarmOff(EUSCI_A_Type * uartportScreen){
+}
+
+void alarmOff(EUSCI_A_Type * uartportScreen){
     P4->OUT &= ~BIT6; //turn off the DRV (DRV enable pin)
     P4->OUT &= ~BIT7; //turn off the buzzer (buzzer enable pin)
     int wait = 0;

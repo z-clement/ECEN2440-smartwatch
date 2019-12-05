@@ -22,7 +22,7 @@ extern volatile uint8_t day;
 
 
 
-changeHour(EUSCI_A_Type * uartportScreen){
+void changeHour(EUSCI_A_Type * uartportScreen){
     int hourTen;
     int hourOne;
 
@@ -54,7 +54,7 @@ changeHour(EUSCI_A_Type * uartportScreen){
 
 
 
-changeMin(EUSCI_A_Type * uartportScreen){
+void changeMin(EUSCI_A_Type * uartportScreen){
     int minOne;
     int minTen;
     minOne = min & 0x0F;

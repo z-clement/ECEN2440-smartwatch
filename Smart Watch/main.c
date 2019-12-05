@@ -7,6 +7,7 @@
 #include "rtc.h"
 //#include "clock.h"
 #include "changeTime.h"
+#include "alarmButton.h"
 
 
 /**
@@ -56,6 +57,7 @@ void main(void)
 
     // Create a circular buffer for bluetooth receiving
     circ_buf_t * bluetoothBuffer = createBuffer(5);
+    circ_buf_t * displayBuffer = createBuffer(2);
 
     // Create a buffer to send a bluetooth message when an alarm fires
     circ_buf_t * alarmBuffer = createBuffer(6);
@@ -107,7 +109,7 @@ void main(void)
 //    addMultipleToBuffer(timeBuffer, stringEnd, 3);
 //    uart_transmit_buffer(timeBuffer, uart_portScreen);
 //    deleteBuffer(timeBuffer);
-
+    //gotoAlarmButton(uart_portScreen); // debugging
     while(1){
         // Read in from bluetooth
         if (RX1FLAG) {
@@ -116,11 +118,20 @@ void main(void)
                 decode_bluetooth(bluetoothBuffer);
             }
         }
+        if (RX2FLAG){
+            screenReadRegister();
+            decode_screen(uart_portScreen);
+        }
+
+
+
+
+
         // Alarm or timer goes off
         if (ALARMFLAG) {
            P4->OUT |= BIT7;
            ALARMFLAG = 0;
-
+           gotoAlarmButton(uart_portScreen);
            // Check if it was a timer, if so disable alarms
            if (TIMERFLAG) {
                RTC_C->AMINHR = 0x0000;

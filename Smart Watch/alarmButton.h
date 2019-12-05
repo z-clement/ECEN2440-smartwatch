@@ -19,6 +19,7 @@
 
 
 void gotoAlarmButton(EUSCI_A_Type * uartportScreen);
+void gotoHome(EUSCI_A_Type * uartportScreen);
 void alarmOff(EUSCI_A_Type * uartportScreen);
 
 
