@@ -5,9 +5,9 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
-//#include "clock.h"
 #include "changeTime.h"
 #include "alarmButton.h"
+#include "alarm.h"
 
 
 /**
@@ -39,12 +39,12 @@ EUSCI_A_Type * bluetooth_port = EUSCI_A1;
 
 void main(void)
 {
-
-    //John's setup
-
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
 
-	//screen testing
+    // Configure buzzer and haptic driver
+    config_alarm_notifications();
+
+    //screen testing
 	EUSCI_A_Type * uart_portScreen = EUSCI_A2;
 	config_uart(uart_portScreen);
 	__enable_irq();
@@ -129,7 +129,7 @@ void main(void)
 
         // Alarm or timer goes off
         if (ALARMFLAG) {
-           P4->OUT |= BIT7;
+           trigger_alarm();
            ALARMFLAG = 0;
            gotoAlarmButton(uart_portScreen);
            // Check if it was a timer, if so disable alarms
