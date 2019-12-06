@@ -21,17 +21,16 @@ extern volatile uint8_t dow;
 extern volatile uint8_t day;
 
 
+uint8_t * stringEnd = "ÿÿÿ";
 
 void changeHour(EUSCI_A_Type * uartportScreen){
     int hourTen;
     int hourOne;
-
+    uint8_t * stringBegin = "ÿÿÿn0.val=";
     if (hour < 0x0A){
         circ_buf_t * timeBuffer = createBuffer(20);
-        uint8_t * stringBegin = "ÿÿÿn0.val=";                    // 22ÿÿÿ";
         addMultipleToBuffer(timeBuffer,stringBegin, 10);
         addToBuffer(timeBuffer, (hour + 48));
-        uint8_t * stringEnd = "ÿÿÿ";
         addMultipleToBuffer(timeBuffer, stringEnd, 3);
         uart_transmit_buffer(timeBuffer, uartportScreen);
         deleteBuffer(timeBuffer);
@@ -40,11 +39,9 @@ void changeHour(EUSCI_A_Type * uartportScreen){
         hourTen = hour >> 4;
         hourOne = hour & 0x0F;
         circ_buf_t * timeBuffer = createBuffer(20);
-        uint8_t * stringBegin = "ÿÿÿn0.val=";                    // 22ÿÿÿ";
         addMultipleToBuffer(timeBuffer,stringBegin, 10);
         addToBuffer(timeBuffer, (hourTen + 48));
         addToBuffer(timeBuffer, (hourOne + 48));
-        uint8_t * stringEnd = "ÿÿÿ";
         addMultipleToBuffer(timeBuffer, stringEnd, 3);
         uart_transmit_buffer(timeBuffer, uartportScreen);
         deleteBuffer(timeBuffer);
@@ -57,22 +54,19 @@ void changeHour(EUSCI_A_Type * uartportScreen){
 void changeMin(EUSCI_A_Type * uartportScreen){
     int minOne;
     int minTen;
+    uint8_t * stringBegin = "ÿÿÿn1.val=";
     minOne = min & 0x0F;
     minTen = min >> 4;
     circ_buf_t * timeBuffer = createBuffer(20);
-    uint8_t * stringBegin = "ÿÿÿn1.val=";                    // 22ÿÿÿ";
     addMultipleToBuffer(timeBuffer,stringBegin, 10);
     addToBuffer(timeBuffer, (minTen + 48));
-    uint8_t * stringEnd = "ÿÿÿ";
     addMultipleToBuffer(timeBuffer, stringEnd, 3);
     uart_transmit_buffer(timeBuffer, uartportScreen);
     deleteBuffer(timeBuffer);
-
+    stringBegin = "ÿÿÿn2.val=";
     circ_buf_t * minOneBuffer = createBuffer(20);
-    stringBegin = "ÿÿÿn2.val=";                    // 22ÿÿÿ";
     addMultipleToBuffer(minOneBuffer,stringBegin, 10);
     addToBuffer(timeBuffer, (minOne + 48));
-    stringEnd = "ÿÿÿ";
     addMultipleToBuffer(minOneBuffer, stringEnd, 3);
     uart_transmit_buffer(minOneBuffer, uartportScreen);
     deleteBuffer(minOneBuffer);
@@ -80,9 +74,9 @@ void changeMin(EUSCI_A_Type * uartportScreen){
 }
 
 
-changedow(EUSCI_A_Type * uartportScreen){
+void changeDow(EUSCI_A_Type * uartportScreen){
     uint8_t * dayString;
-
+    uint8_t * stringBegin = "ÿÿÿ";
     if(dow == 0){
         dayString = "\"Sun\"";
     }
@@ -90,23 +84,58 @@ changedow(EUSCI_A_Type * uartportScreen){
         dayString = "\"Mon\"";
     }
     else if(dow == 2){
-            dayString = "\"Tue\"";
+        dayString = "\"Tue\"";
         }
     else if(dow == 3){
-                dayString = "\"Wed\"";
+        dayString = "\"Wed\"";
             }
     else if(dow == 4){
-                    dayString = "\"Thu\"";
+        dayString = "\"Thu\"";
                 }
     else if(dow == 5){
-                        dayString = "\"Fri\"";
+        dayString = "\"Fri\"";
                     }
     else if(dow == 6){
-                            dayString = "\"Sat\"";
+        dayString = "\"Sat\"";
                         }
 
-
-
+    circ_buf_t * dowBuffer = createBuffer(25);
+    addMultipleToBuffer(dowBuffer,stringBegin, 3);
+    addMultipleToBuffer(dowBuffer,"t1.txt=", 7);
+    addMultipleToBuffer(dowBuffer, dayString, 5);
+    addMultipleToBuffer(dowBuffer, stringEnd, 3);
+    uart_transmit_buffer(dowBuffer, uartportScreen);
+    deleteBuffer(dowBuffer);
 
 }
 
+
+void changeDay(EUSCI_A_Type * uartportScreen){
+    int dayTen;
+    int dayOne;
+    dayTen = day >> 4;
+    dayOne = day & 0x0F;
+    uint8_t * stringBegin = "ÿÿÿn3.val=";
+    if (day < 0x0A){
+            circ_buf_t * dayBuffer = createBuffer(20);
+            addMultipleToBuffer(dayBuffer,stringBegin, 10);
+            addToBuffer(dayBuffer, (day + 48));
+            addMultipleToBuffer(dayBuffer, stringEnd, 3);
+            uart_transmit_buffer(dayBuffer, uartportScreen);
+            deleteBuffer(dayBuffer);
+        }
+
+    else{
+            dayTen = day >> 4;
+            dayOne = day & 0x0F;
+            circ_buf_t * dayBuffer = createBuffer(20);
+            addMultipleToBuffer(dayBuffer,stringBegin, 10);
+            addToBuffer(dayBuffer, (dayTen + 48));
+            addToBuffer(dayBuffer, (dayOne + 48));
+            addMultipleToBuffer(dayBuffer, stringEnd, 3);
+            uart_transmit_buffer(dayBuffer, uartportScreen);
+            deleteBuffer(dayBuffer);
+        }
+
+
+}

@@ -20,6 +20,8 @@
 
 void changeHour(EUSCI_A_Type * uartportScreen);
 void changeMin(EUSCI_A_Type * uartportScreen);
+void changeDow(EUSCI_A_Type * uartportScreen);
+void changeDay(EUSCI_A_Type * uartportScreen);
 
 
 #endif /* CHANGETIME_H_ */

@@ -56,5 +56,5 @@ void config_drv2605L(void) {
     }
 
     // Turn off EN pin
-    P4->OUT &= ~BIT6;
+//    P4->OUT &= ~BIT6;
 }

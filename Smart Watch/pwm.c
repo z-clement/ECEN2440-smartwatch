@@ -34,5 +34,7 @@ void start_pwm(uint8_t duty_cycle) {
 /* Stop Mode: clear all Mode Control bits, MC, in TAxCTL register */
 void stop_pwm(void) {
     // Set bits 4-5 in TA0CTL to 00 to turn off the Mode Control bits
-    TIMER_A0->CTL &= ~0x0030;
+    TIMER_A0->CTL &= ~(BIT4 | BIT5);
+    TIMER_A0->CCR[0] = 0;
+    TIMER_A0->CCR[1] = 0;
 }

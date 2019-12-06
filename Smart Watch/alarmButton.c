@@ -12,8 +12,12 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
+#include "pwm.h"
 //#include "clock.h"
 #include "changeTime.h"
+
+
+extern volatile int ALARMBUTTONFLAG;
 
 void gotoAlarmButton(EUSCI_A_Type * uartportScreen){
     circ_buf_t * alarmButtonBuff = createBuffer(20);
@@ -21,7 +25,7 @@ void gotoAlarmButton(EUSCI_A_Type * uartportScreen){
     addMultipleToBuffer(alarmButtonBuff,string, 12);
     uart_transmit_buffer(alarmButtonBuff, uartportScreen);
     deleteBuffer(alarmButtonBuff);
-
+    ALARMBUTTONFLAG = 1;
 }
 
 void gotoHome(EUSCI_A_Type * uartportScreen){
@@ -30,11 +34,12 @@ void gotoHome(EUSCI_A_Type * uartportScreen){
     addMultipleToBuffer(alarmButtonBuff,string, 12);
     uart_transmit_buffer(alarmButtonBuff, uartportScreen);
     deleteBuffer(alarmButtonBuff);
-
+    ALARMBUTTONFLAG = 0;
 }
 
 void alarmOff(EUSCI_A_Type * uartportScreen){
-    P4->OUT &= ~BIT6; //turn off the DRV (DRV enable pin)
+//    P4->OUT &= ~BIT6; //turn off the DRV (DRV enable pin)
+    stop_pwm();
     P4->OUT &= ~BIT7; //turn off the buzzer (buzzer enable pin)
     int wait = 0;
     while(wait < 10000){

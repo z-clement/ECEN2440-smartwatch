@@ -27,4 +27,6 @@ void config_drv_gpio(void) {
 // Configure P4.7 as GPIO for the buzzer
 void config_buzzer_gpio(void) {
     P4->DIR |= BIT7;
+    P4->SEL0 &= ~BIT7;
+    P4->SEL1 &= ~BIT7;
 }

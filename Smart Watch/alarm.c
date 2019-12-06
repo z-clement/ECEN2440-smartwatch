@@ -9,6 +9,7 @@
 #include "drv2605l.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "pwm.h"
 #include "alarm.h"
 
 // Configure the DRV, LRA, and buzzer
@@ -30,7 +31,7 @@ void config_alarm_notifications(void) {
 // Turn the drv and buzzer on
 void trigger_alarm(void) {
     // Turn the drv on
-    P4->OUT |= BIT6;
+    start_pwm(90);
     // Turn the buzzer on
     P4->OUT |= BIT7;
 }

@@ -6,4 +6,7 @@ void config_pwm_gpio(void);
 
 // Config P4.7 for DRV EN output
 void config_drv_gpio(void);
+
+void config_buzzer_gpio(void);
+
 #endif

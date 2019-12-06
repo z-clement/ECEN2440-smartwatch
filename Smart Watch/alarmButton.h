@@ -14,6 +14,7 @@
 #include "circularBuf.h"
 #include "screenRefresh.h"
 #include "rtc.h"
+#include "pwm.h"
 //#include "clock.h"
 #include "changeTime.h"
 

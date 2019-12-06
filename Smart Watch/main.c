@@ -25,7 +25,7 @@ volatile uint32_t year = 0x00;
 volatile uint8_t dow = 0x00;
 volatile uint8_t MINUTEFLAG = 0;
 volatile uint8_t RDYFLAG = 0;
-volatile uint8_t ALARMFLAG = 0;
+volatile uint8_t ALARMFLAG = 1;
 volatile uint8_t TIMERFLAG = 0;
 volatile uint8_t RX2FLAG = 0;
 volatile uint8_t TX2FLAG = 0;
@@ -34,7 +34,7 @@ volatile uint8_t TX1FLAG = 0;
 volatile uint8_t CLOCKSETFLAG = 0;
 volatile uint8_t ALARMSETFLAG = 0;
 volatile uint8_t TIMERSETFLAG = 0;
-
+volatile uint8_t ALARMBUTTONFLAG = 0;
 EUSCI_A_Type * bluetooth_port = EUSCI_A1;
 
 void main(void)
@@ -53,7 +53,7 @@ void main(void)
     config_uart(bluetooth_port);
 
     // Configure output pins for RTC alarm/timer
-    config_rtc_gpio();
+//    config_rtc_gpio();
 
     // Create a circular buffer for bluetooth receiving
     circ_buf_t * bluetoothBuffer = createBuffer(5);
@@ -71,6 +71,8 @@ void main(void)
     uart_transmit_buffer(testBuffer, bluetooth_port);
     deleteBuffer(testBuffer);
 
+
+    //For debugging, seets the value on the hours display to 4
 	circ_buf_t * screenBuffer = createBuffer(18);
 	uint8_t * stringBye = "ÿÿÿn0.val=4ÿÿÿ"; //contols the hour of the screen. n0.val is the hour object ÿÿÿ is the termination character
 	addMultipleToBuffer(screenBuffer,stringBye, 16);
@@ -110,6 +112,9 @@ void main(void)
 //    uart_transmit_buffer(timeBuffer, uart_portScreen);
 //    deleteBuffer(timeBuffer);
     //gotoAlarmButton(uart_portScreen); // debugging
+
+    //P4->OUT |= BIT7;
+    //gotoAlarmButton(uart_portScreen);
     while(1){
         // Read in from bluetooth
         if (RX1FLAG) {
@@ -160,15 +165,23 @@ void main(void)
             */
             clockUpdate();
 //            P2->OUT |= BIT0;
-            changeHour(uart_portScreen);
-            changeMin(uart_portScreen);
+            if (ALARMBUTTONFLAG == 0){
+                changeHour(uart_portScreen);
+                changeMin(uart_portScreen);
+                changeDow(uart_portScreen);
+                changeDay(uart_portScreen);
+            }
             RDYFLAG = 0;
         }
         if (MINUTEFLAG != 0){
             clockUpdate();
 //            P2->OUT |= BIT0;
-            changeHour(uart_portScreen);
-            changeMin(uart_portScreen);
+            if (ALARMBUTTONFLAG == 0){
+                changeHour(uart_portScreen);
+                changeMin(uart_portScreen);
+                changeDow(uart_portScreen);
+                changeDay(uart_portScreen);
+            }
         }
 
     }

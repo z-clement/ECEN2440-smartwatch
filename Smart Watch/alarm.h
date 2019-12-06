@@ -8,7 +8,7 @@
 #ifndef ALARM_H_
 #define ALARM_H_
 
-void config_alarm_notifcations(void);
+void config_alarm_notifications(void);
 
 void trigger_alarm(void);
 
