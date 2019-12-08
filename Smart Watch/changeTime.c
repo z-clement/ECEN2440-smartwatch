@@ -19,6 +19,8 @@ extern volatile uint8_t min;
 extern volatile uint8_t hour;
 extern volatile uint8_t dow;
 extern volatile uint8_t day;
+extern volatile uint8_t month;
+extern volatile uint32_t year;
 
 
 uint8_t * stringEnd = "ÿÿÿ";
@@ -115,7 +117,7 @@ void changeDay(EUSCI_A_Type * uartportScreen){
     int dayOne;
     dayTen = day >> 4;
     dayOne = day & 0x0F;
-    uint8_t * stringBegin = "ÿÿÿn3.val=";
+    uint8_t * stringBegin = "ÿÿÿn4.val=";
     if (day < 0x0A){
             circ_buf_t * dayBuffer = createBuffer(20);
             addMultipleToBuffer(dayBuffer,stringBegin, 10);
@@ -138,4 +140,61 @@ void changeDay(EUSCI_A_Type * uartportScreen){
         }
 
 
+}
+
+void changeMonth(EUSCI_A_Type * uartportScreen){
+    int monthTen;
+    int monthOne;
+    monthTen = month >> 4;
+    monthOne = month & 0x0F;
+    uint8_t * stringBegin = "ÿÿÿn3.val=";
+    if (month < 0x0A){
+            circ_buf_t * monthBuffer = createBuffer(20);
+            addMultipleToBuffer(monthBuffer,stringBegin, 10);
+            addToBuffer(monthBuffer, (month + 48));
+            addMultipleToBuffer(monthBuffer, stringEnd, 3);
+            uart_transmit_buffer(monthBuffer, uartportScreen);
+            deleteBuffer(monthBuffer);
+        }
+
+    else{
+            monthTen = month >> 4;
+            monthOne = month & 0x0F;
+            circ_buf_t * monthBuffer = createBuffer(20);
+            addMultipleToBuffer(monthBuffer,stringBegin, 10);
+            addToBuffer(monthBuffer, (monthTen + 48));
+            addToBuffer(monthBuffer, (monthOne + 48));
+            addMultipleToBuffer(monthBuffer, stringEnd, 3);
+            uart_transmit_buffer(monthBuffer, uartportScreen);
+            deleteBuffer(monthBuffer);
+        }
+
+
+}
+
+void changeYear(EUSCI_A_Type * uartportScreen){
+    int yearThou = year >> 12;
+    int yearHun = year >> 16;
+    int yearTen = year >> 4;
+    int yearOne = year & 0x0F;
+    uint8_t * stringBegin = "ÿÿÿn5.val=";
+    circ_buf_t * yearBuffer = createBuffer(40);
+    addMultipleToBuffer(yearBuffer,stringBegin, 10);
+    addToBuffer(yearBuffer, (yearThou + 48));
+    addToBuffer(yearBuffer, (yearHun + 48));
+    addToBuffer(yearBuffer, (yearTen + 48));
+    addToBuffer(yearBuffer, (yearOne + 48));
+    addMultipleToBuffer(yearBuffer, stringEnd, 3);
+    uart_transmit_buffer(yearBuffer, uartportScreen);
+    deleteBuffer(yearBuffer);
+
+}
+
+void changeAllTime(EUSCI_A_Type * uartportScreen){
+    changeHour(uartportScreen);
+    changeMin(uartportScreen);
+    changeDow(uartportScreen);
+    changeDay(uartportScreen);
+    changeMonth(uartportScreen);
+    changeYear(uartportScreen);
 }

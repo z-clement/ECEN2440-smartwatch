@@ -85,17 +85,16 @@ void main(void)
          0x00,       // Minutes
          0x12,       // Hours
          0x00,       // Day of week (unused in our watch)
-         0x00,       // Day of month
-         0x00,       // Month
-         0x0000      // Year
+         0x8,       // Day of month
+         0x12,       // Month
+         0x2020      // Year
     };
 
     // Configure the RTC with the above time in BCD format
     RTC_config(&currentTime, RTC_C_CTL13_BCD);; // configure the rtc clock and interupts
 
     clockUpdate();
-    changeHour(uart_portScreen);
-    changeMin(uart_portScreen);
+    changeAllTime(uart_portScreen);
 //    P2->DIR |= BIT0;
 //    P2->DIR |= BIT1;
 //    P2->OUT &= ~BIT0;
@@ -166,10 +165,7 @@ void main(void)
             clockUpdate();
 //            P2->OUT |= BIT0;
             if (ALARMBUTTONFLAG == 0){
-                changeHour(uart_portScreen);
-                changeMin(uart_portScreen);
-                changeDow(uart_portScreen);
-                changeDay(uart_portScreen);
+                changeAllTime(uart_portScreen);
             }
             RDYFLAG = 0;
         }
@@ -177,10 +173,7 @@ void main(void)
             clockUpdate();
 //            P2->OUT |= BIT0;
             if (ALARMBUTTONFLAG == 0){
-                changeHour(uart_portScreen);
-                changeMin(uart_portScreen);
-                changeDow(uart_portScreen);
-                changeDay(uart_portScreen);
+                changeAllTime(uart_portScreen);
             }
         }
 
