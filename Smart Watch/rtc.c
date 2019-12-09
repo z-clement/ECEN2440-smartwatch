@@ -1,3 +1,4 @@
+
 /*
  * rtc.c
  *
@@ -12,6 +13,14 @@
 extern volatile uint8_t RDYFLAG;
 extern volatile uint8_t ALARMFLAG;
 extern volatile uint8_t MINUTEFLAG;
+
+extern volatile uint8_t sec;
+extern volatile uint8_t min;
+extern volatile uint8_t hour;
+extern volatile uint8_t day;
+extern volatile uint8_t month;
+extern volatile uint8_t dow;
+extern volatile uint32_t year;
 
 
 // Configure the real time clock with the given start time, and BCD or Hex format
@@ -96,16 +105,44 @@ void config_rtc_gpio(void) {
     P2->SEL0 |= ~BIT4;
     P2->SEL1 &= ~BIT4;
     P2->OUT &= ~BIT4;
+    P4->DIR |= BIT7;
+    P4->SEL0 |= ~BIT7;
+    P4->SEL1 &= ~BIT7;
+    P4->OUT &= ~BIT7;
 }
 
+
 void RTC_C_IRQHandler(void){
-    // Alarm interrupt
-    if(RTC_C->CTL0 & RTCAIFG){
-        ALARMFLAG = 1;
-        RTC_C_clearInterruptFlag(RTC_C_CTL0_AIE);
-    } else if (RTC_C->PS1CTL & RT1PSIFG) {
-        // 1 Hz interrupt (every second update)
-        RDYFLAG = 1;
-        RTC_C->PS1CTL &= ~ RT1PSIFG;
+    if(RTC_C->CTL0 & RTCTEVIFG){
+            MINUTEFLAG = 1;
+            RDYFLAG = 1;
+            //RTC_C->CTL0 &= ~RTCTEVIFG;
+            RTC_C_clearInterruptFlag(RTC_C_CTL0_TEVIE);
+
     }
+    if(RTC_C->CTL0 & RTCAIFG){
+            ALARMFLAG = 1;
+            RDYFLAG = 1;
+            RTC_C_clearInterruptFlag(RTC_C_CTL0_AIE);
+    }
+    else if(RTC_C->PS1CTL &  RT1PSIFG){
+
+       RDYFLAG = 1;
+       RTC_C->PS1CTL &= (~RT1PSIFG);
+    }
+}
+
+
+void clockUpdate(void){
+    // update the clock values
+  MINUTEFLAG = 0;
+  sec = RTCSEC;
+  min = RTCMIN;
+  hour = RTCHOUR;
+  day = RTCDAY;
+  month = RTCMON;
+  year = RTCYEAR;
+  dow = RTCDOW;
+
+
 }

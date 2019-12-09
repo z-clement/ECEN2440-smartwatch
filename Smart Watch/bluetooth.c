@@ -1,3 +1,4 @@
+
 /*
  * bluetooth.c
  *
@@ -15,7 +16,7 @@
 extern EUSCI_A_Type * bluetooth_port;
 extern volatile RTC_C_Calendar * realTime;
 extern volatile uint8_t TIMERFLAG;
-extern volatile uint8_t RX2FLAG;
+extern volatile uint8_t RX1FLAG;
 
 // Decode the bluetooth transmission for RTC functionality
 void decode_bluetooth(circ_buf_t * receiveBuffer) {
@@ -37,7 +38,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in clock settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(19);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
@@ -57,7 +58,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in alarm settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(13);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
@@ -73,7 +74,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         // Read in timer settings over bluetooth
         circ_buf_t * inputBuffer = createBuffer(5);
         while (!isBufferFull(inputBuffer)) {
-            if (RX2FLAG) {
+            if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
             }
         }
@@ -123,7 +124,7 @@ void set_rtc_clock(circ_buf_t * valueBuffer) {
          0x00,       // Seconds
          minutes,    // Minutes
          hours,      // Hours
-         dow,        // Day of week (unused in our watch)
+         dow,        // Day of week
          day,        // Day of month
          month,      // Month
          year        // Year
@@ -259,3 +260,4 @@ uint8_t isStringEqual(uint8_t * str1, uint8_t * str2, int length) {
     }
     return 1;
 }
+

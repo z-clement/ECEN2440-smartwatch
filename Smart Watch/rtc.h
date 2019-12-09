@@ -1,3 +1,4 @@
+
 /*
  * rtc.h
  *
@@ -35,4 +36,7 @@ void RTC_C_startClock(void);
 
 void config_rtc_gpio(void);
 
+void clockUpdate(void);
+
 #endif /* RTC_H_ */
+

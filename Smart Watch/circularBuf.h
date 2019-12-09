@@ -1,3 +1,4 @@
+
 /*
  * circularBuf.h
  *
@@ -35,3 +36,4 @@ uint8_t isBufferFull(circ_buf_t * circBuffer);
 uint8_t isBufferEmpty(circ_buf_t * circBuffer);
 
 #endif /* CIRCULARBUF_H_ */
+
