@@ -51,12 +51,12 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
         uart_transmit_buffer(commandBuff, bluetooth_port);
         addMultipleToBuffer(commandBuff, "en is alarm enable ", 19);
         uart_transmit_buffer(commandBuff, bluetooth_port);
-        addMultipleToBuffer(commandBuff, "1 = minute, 2 = hour, 3 = dow, 4 = day ", 39);
+        addMultipleToBuffer(commandBuff, "1 = minute, 2 = hour, 4 = dow, 8 = day ", 39);
         uart_transmit_buffer(commandBuff, bluetooth_port);
         deleteBuffer(commandBuff);
 
         // Read in alarm settings over bluetooth
-        circ_buf_t * inputBuffer = createBuffer(13);
+        circ_buf_t * inputBuffer = createBuffer(14);
         while (!isBufferFull(inputBuffer)) {
             if (RX1FLAG) {
                 uart_read_to_buffer(inputBuffer, bluetooth_port);
@@ -136,13 +136,14 @@ void set_rtc_clock(circ_buf_t * valueBuffer) {
 
 // Set the alarm with the value in the buffer
 void set_alarm(circ_buf_t * valueBuffer) {
-    // alarmEnables: 1 = minute, 2 = hour, 3 = dow, 4 = day, any combo works to enable multiple (add numbers)
+    // alarmEnables: 1 = minute, 2 = hour, 4 = dow, 8 = day, any combo works to enable multiple (add numbers)
     // Take the UTF-8 numbers and convert them to binary
-    circ_buf_t * timeBuffer = createBuffer(9);
+    circ_buf_t * timeBuffer = createBuffer(10);
     decodeUTFTime(valueBuffer, timeBuffer);
 
     // Get the alarm enable information
-    uint8_t alarmEnables = readFromBuffer(timeBuffer);
+    uint8_t alarmEnableTens = readFromBuffer(timeBuffer);
+    uint8_t alarmEnableOnes = readFromBuffer(timeBuffer);
     // Get the minutes to set the alarm
     uint8_t minTens = readFromBuffer(timeBuffer);
     uint8_t minOnes = readFromBuffer(timeBuffer);
@@ -163,6 +164,10 @@ void set_alarm(circ_buf_t * valueBuffer) {
     // Clear all alarm registers
     RTC_C->AMINHR = 0x0000;
     RTC_C->ADOWDAY = 0x0000;
+
+    // Get the alarm enables in binary for easier decoding
+    RTC_C->BCD2BIN = (alarmEnableTens << 4) | alarmEnableOnes;
+    uint8_t alarmEnables = RTC_C->BCD2BIN;
 
     // Enable the alarms that have a nonzero value passed in over bluetooth
     if (alarmEnables & 1) {

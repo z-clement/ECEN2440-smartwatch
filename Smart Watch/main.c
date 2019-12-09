@@ -122,15 +122,11 @@ void main(void)
                 decode_bluetooth(bluetoothBuffer);
             }
         }
+        // Read in from screen
         if (RX2FLAG){
             screenReadRegister();
             decode_screen(uart_portScreen);
         }
-
-
-
-
-
         // Alarm or timer goes off
         if (ALARMFLAG) {
            trigger_alarm();

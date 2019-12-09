@@ -29,4 +29,5 @@ void config_buzzer_gpio(void) {
     P4->DIR |= BIT7;
     P4->SEL0 &= ~BIT7;
     P4->SEL1 &= ~BIT7;
+    P4->OUT &= ~BIT7;
 }
