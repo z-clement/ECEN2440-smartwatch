@@ -39,12 +39,10 @@ void gotoHome(EUSCI_A_Type * uartportScreen){
 
 void alarmOff(EUSCI_A_Type * uartportScreen){
 //    P4->OUT &= ~BIT6; //turn off the DRV (DRV enable pin)
-    stop_pwm();
+    start_pwm(0);
     P4->OUT &= ~BIT7; //turn off the buzzer (buzzer enable pin)
-    int wait = 0;
-    while(wait < 10000){
-        wait++;
-    }
+    //int wait = 0;
+
     changeMin(uartportScreen); //update the min value
     changeHour(uartportScreen); // update the hour value
 }
