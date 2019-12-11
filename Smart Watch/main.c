@@ -15,7 +15,7 @@
  */
 
 
-uint8_t screenData = 0;
+// Variables to send the current time to the screen
 volatile uint8_t sec = 0x00;
 volatile uint8_t min = 0x00;
 volatile uint8_t hour = 0x00;
@@ -23,9 +23,11 @@ volatile uint8_t day = 0x00;
 volatile uint8_t month = 0x00;
 volatile uint32_t year = 0x00;
 volatile uint8_t dow = 0x00;
+
+// Flags for interrupts so we aren't processing a lot of code while in the interrupts
 volatile uint8_t MINUTEFLAG = 0;
 volatile uint8_t RDYFLAG = 0;
-volatile uint8_t ALARMFLAG = 0; //previously set to one for debugging  the alarm
+volatile uint8_t ALARMFLAG = 0;
 volatile uint8_t TIMERFLAG = 0;
 volatile uint8_t RX2FLAG = 0;
 volatile uint8_t TX2FLAG = 0;
@@ -35,57 +37,48 @@ volatile uint8_t CLOCKSETFLAG = 0;
 volatile uint8_t ALARMSETFLAG = 0;
 volatile uint8_t TIMERSETFLAG = 0;
 volatile uint8_t ALARMBUTTONFLAG = 0;
+
+// UART variables needed in bluetooth.c and the screen files
 EUSCI_A_Type * bluetooth_port = EUSCI_A1;
+uint8_t screenData = 0;
 
 void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
 
+    __enable_irq();
+
     // Configure buzzer and haptic driver
     config_alarm_notifications();
 
-    //screen testing
+    // Configure UART for the screen
 	EUSCI_A_Type * uart_portScreen = EUSCI_A2;
 	config_uart(uart_portScreen);
-	__enable_irq();
 
     // Configure UART for bluetooth
     config_uart(bluetooth_port);
 
-    // Configure output pins for RTC alarm/timer
-//    config_rtc_gpio();
-
-    // Create a circular buffer for bluetooth receiving
+    // Create a circular buffer for bluetooth and screen receiving
     circ_buf_t * bluetoothBuffer = createBuffer(5);
     circ_buf_t * displayBuffer = createBuffer(2);
 
     // Create a buffer to send a bluetooth message when an alarm fires
     circ_buf_t * alarmBuffer = createBuffer(6);
 
-//    // For debugging, a buffer to send the time over bluetooth
-//    circ_buf_t * timeBuffer = createBuffer(9);
-
-    // For debugging, sends "Test!" over bluetooth
-    circ_buf_t * testBuffer = createBuffer(6);
-    addMultipleToBuffer(testBuffer, "Test!", 5);
+    // Sends "Connected" over bluetooth to verify the watch is connected
+    circ_buf_t * testBuffer = createBuffer(9);
+    addMultipleToBuffer(testBuffer, "Connected", 9);
     uart_transmit_buffer(testBuffer, bluetooth_port);
     deleteBuffer(testBuffer);
 
-
-    //For debugging, seets the value on the hours display to 4
-	circ_buf_t * screenBuffer = createBuffer(18);
-	uint8_t * stringBye = "ÿÿÿn0.val=4ÿÿÿ"; //contols the hour of the screen. n0.val is the hour object ÿÿÿ is the termination character
-	addMultipleToBuffer(screenBuffer,stringBye, 16);
-	uart_transmit_buffer(screenBuffer, uart_portScreen);
-	deleteBuffer(screenBuffer);
-
+    // Default time is 12:00:00 on 12/08/2020
     const RTC_C_Calendar currentTime =
     {
          0x00,       // Seconds
          0x00,       // Minutes
          0x12,       // Hours
          0x00,       // Day of week (unused in our watch)
-         0x8,       // Day of month
+         0x8,        // Day of month
          0x12,       // Month
          0x2020      // Year
     };
@@ -93,46 +86,30 @@ void main(void)
     // Configure the RTC with the above time in BCD format
     RTC_config(&currentTime, RTC_C_CTL13_BCD);; // configure the rtc clock and interupts
 
+    // Update the screen with the default time
     clockUpdate();
     changeAllTime(uart_portScreen);
-//    P2->DIR |= BIT0;
-//    P2->DIR |= BIT1;
-//    P2->OUT &= ~BIT0;
-//    P2->OUT &= ~BIT1;
-    //P2->OUT |= BIT0;
-   // MINUTEFLAG = 1;
 
-//    circ_buf_t * timeBuffer = createBuffer(20);
-//    uint8_t * stringBegin = "ÿÿÿn0.val=";                    // 22ÿÿÿ";
-//    addMultipleToBuffer(timeBuffer,stringBegin, 10);
-//    addToBuffer(timeBuffer, (min + 48));
-//    uint8_t * stringEnd = "ÿÿÿ";
-//    addMultipleToBuffer(timeBuffer, stringEnd, 3);
-//    uart_transmit_buffer(timeBuffer, uart_portScreen);
-//    deleteBuffer(timeBuffer);
-    //gotoAlarmButton(uart_portScreen); // debugging
-
-    //P4->OUT |= BIT7;
-    //gotoAlarmButton(uart_portScreen);
     while(1){
-        // Read in from bluetooth
+        // Read in from bluetooth UART
         if (RX1FLAG) {
             uart_read_to_buffer(bluetoothBuffer, bluetooth_port);
             if (isBufferFull(bluetoothBuffer)) {
                 decode_bluetooth(bluetoothBuffer);
             }
         }
-        // Read in from screen
+        // Read in from screen UART
         if (RX2FLAG){
             screenReadRegister();
             decode_screen(uart_portScreen);
         }
         // Alarm or timer goes off
         if (ALARMFLAG) {
+           // Turn on the Piezo buzzer and haptic driver
            trigger_alarm();
            ALARMFLAG = 0;
            gotoAlarmButton(uart_portScreen);
-           // Check if it was a timer, if so disable alarms
+           // Check if it was a timer, if so disable alarms so the timer doesn't repeat
            if (TIMERFLAG) {
                RTC_C->AMINHR = 0x0000;
                RTC_C->ADOWDAY = 0x0000;
@@ -142,37 +119,18 @@ void main(void)
                addMultipleToBuffer(alarmBuffer, "Alarm", 5);
            }
 
-           // Send a message over bluetooth indciating the alarm/timer finished
+           // Send a message over bluetooth indicating the alarm/timer finished
            uart_transmit_buffer(alarmBuffer, bluetooth_port);
         }
         // Second ticked by, time must be updated
         if (RDYFLAG) {
-            // For debugging, transmit current time as SEC_MIN_HOUR_DAY_MONTH_YEAR in one bluetooth transmission
-            /*
-            addToBuffer(timeBuffer, RTCSEC);
-            addToBuffer(timeBuffer, RTCMIN);
-            addToBuffer(timeBuffer, RTCHOUR);
-            addToBuffer(timeBuffer, RTCDAY);
-            addToBuffer(timeBuffer, RTCMON);
-            addToBuffer(timeBuffer, (RTCYEAR >> 8));
-            addToBuffer(timeBuffer, RTCYEAR);
-            uart_transmit_buffer(timeBuffer, bluetooth_port);
-            */
             clockUpdate();
-//            P2->OUT |= BIT0;
+            // Only update the time if an alarm is not currently going off
             if (ALARMBUTTONFLAG == 0){
                 changeAllTime(uart_portScreen);
             }
             RDYFLAG = 0;
         }
-        if (MINUTEFLAG != 0){
-            clockUpdate();
-//            P2->OUT |= BIT0;
-            if (ALARMBUTTONFLAG == 0){
-                changeAllTime(uart_portScreen);
-            }
-        }
-
     }
 }
 

@@ -10,10 +10,11 @@
 #include <stdint.h>
 #include "rtc.h"
 
+// Interrupt flags
 extern volatile uint8_t RDYFLAG;
 extern volatile uint8_t ALARMFLAG;
-extern volatile uint8_t MINUTEFLAG;
 
+// Variables to track the current time
 extern volatile uint8_t sec;
 extern volatile uint8_t min;
 extern volatile uint8_t hour;
@@ -53,6 +54,7 @@ void RTC_config(const RTC_C_Calendar *calendarTime, uint_fast16_t formatSelect){
 
     // Enable RTC interrupts for the alarm
     RTC_C_enableInterrupt(RTC_C_CTL0_AIE);
+
     // Enable RT1PSIFG with the prescalar set so it fires every second (1 Hz frequency)
     RTC_C->PS1CTL |= (RTC_C_PS1CTL_RT1PSIE | RTC_C_PS1CTL_RT1IP__128);   // divide by 128 to get 1 Hz frequency
 
@@ -84,13 +86,6 @@ void RTC_C_enableInterrupt(uint8_t interruptMask)
     }
 }
 
-void RTC_C_setCalendarEvent(uint_fast16_t eventSelect)
-{
-    RTC_C->CTL0 = (RTC_C->CTL0 & ~RTC_C_CTL0_KEY_MASK) | RTC_C_KEY;
-    RTC_C->CTL13 = (RTC_C->CTL13 & ~(RTC_C_CTL13_TEV_3)) | eventSelect;
-    BITBAND_PERI(RTC_C->CTL0, RTC_C_CTL0_KEY_OFS) = 0;
-}
-
 // Start the Real Time Clock
 void RTC_C_startClock(void)
 {
@@ -99,27 +94,8 @@ void RTC_C_startClock(void)
     BITBAND_PERI(RTC_C->CTL0, RTC_C_CTL0_KEY_OFS) = 0;
 }
 
-// Configure P2.4 to be GPIO output for the buzzer and DRV
-void config_rtc_gpio(void) {
-    P2->DIR |= BIT4;
-    P2->SEL0 |= ~BIT4;
-    P2->SEL1 &= ~BIT4;
-    P2->OUT &= ~BIT4;
-    P4->DIR |= BIT7;
-    P4->SEL0 |= ~BIT7;
-    P4->SEL1 &= ~BIT7;
-    P4->OUT &= ~BIT7;
-}
-
 
 void RTC_C_IRQHandler(void){
-    if(RTC_C->CTL0 & RTCTEVIFG){
-            MINUTEFLAG = 1;
-            RDYFLAG = 1;
-            //RTC_C->CTL0 &= ~RTCTEVIFG;
-            RTC_C_clearInterruptFlag(RTC_C_CTL0_TEVIE);
-
-    }
     if(RTC_C->CTL0 & RTCAIFG){
             ALARMFLAG = 1;
             RDYFLAG = 1;
@@ -132,17 +108,13 @@ void RTC_C_IRQHandler(void){
     }
 }
 
-
+// Update the clock values
 void clockUpdate(void){
-    // update the clock values
-  MINUTEFLAG = 0;
-  sec = RTCSEC;
-  min = RTCMIN;
-  hour = RTCHOUR;
-  day = RTCDAY;
-  month = RTCMON;
-  year = RTCYEAR;
-  dow = RTCDOW;
-
-
+    sec = RTCSEC;
+    min = RTCMIN;
+    hour = RTCHOUR;
+    day = RTCDAY;
+    month = RTCMON;
+    year = RTCYEAR;
+    dow = RTCDOW;
 }

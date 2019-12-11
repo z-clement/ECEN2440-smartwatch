@@ -54,7 +54,4 @@ void config_drv2605L(void) {
         P1->DIR |= BIT0;
         P1->OUT |= BIT0;        // indicate error occured
     }
-
-    // Turn off EN pin
-//    P4->OUT &= ~BIT6;
 }

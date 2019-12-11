@@ -30,8 +30,6 @@ void RTC_C_clearInterruptFlag(uint_fast8_t interruptFlagMask);
 
 void RTC_C_enableInterrupt(uint8_t interruptMask);
 
-void RTC_C_setCalendarEvent(uint_fast16_t eventSelect);
-
 void RTC_C_startClock(void);
 
 void config_rtc_gpio(void);

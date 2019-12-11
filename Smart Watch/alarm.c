@@ -24,7 +24,7 @@ void config_alarm_notifications(void) {
     // configure the DRV2605L
     config_drv2605L();
 
-    // Configurations for buzzer
+    // Configurations for buzzer pins
     config_buzzer_gpio();
 }
 

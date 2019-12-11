@@ -15,13 +15,15 @@
 #include "screenRefresh.h"
 #include "rtc.h"
 #include "pwm.h"
-//#include "clock.h"
 #include "changeTime.h"
 
-
+// Send a command to the screen to switch to the alarm off screen
 void gotoAlarmButton(EUSCI_A_Type * uartportScreen);
-void gotoHome(EUSCI_A_Type * uartportScreen);
-void alarmOff(EUSCI_A_Type * uartportScreen);
 
+// Send a command to the screen to switch to the clock screen
+void gotoHome(EUSCI_A_Type * uartportScreen);
+
+// Turn off the drv and buzzer
+void alarmOff(EUSCI_A_Type * uartportScreen);
 
 #endif /* ALARMBUTTON_H_ */

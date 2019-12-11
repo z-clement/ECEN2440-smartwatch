@@ -14,7 +14,6 @@
 #include "rtc.h"
 
 extern EUSCI_A_Type * bluetooth_port;
-extern volatile RTC_C_Calendar * realTime;
 extern volatile uint8_t TIMERFLAG;
 extern volatile uint8_t RX1FLAG;
 
@@ -43,7 +42,9 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
             }
         }
 
+        // Set the clock with the given settings
         set_rtc_clock(inputBuffer);
+
     } else if (isStringEqual(command, "Alarm", 5)) {
         // Send info for how to set the alarm over bluetooth
         circ_buf_t * commandBuff = createBuffer(64);
@@ -63,7 +64,9 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
             }
         }
 
+        // Set the alarm with the given settings
         set_alarm(inputBuffer);
+
     } else if (isStringEqual(command, "Timer", 5)) {
         // Send info for how to set the timer over bluetooth
         circ_buf_t * commandBuff = createBuffer(20);
@@ -79,6 +82,7 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
             }
         }
 
+        // Set the timer with the given settings
         set_timer(inputBuffer);
     }
 
@@ -86,33 +90,38 @@ void decode_bluetooth(circ_buf_t * receiveBuffer) {
     clearBuffer(receiveBuffer);
 }
 
-// Set the rtc with the values in the buffer
+// Set the RTC with the values in the buffer
 void set_rtc_clock(circ_buf_t * valueBuffer) {
     // Take the UTF-8 numbers and convert them to binary
     circ_buf_t * timeBuffer = createBuffer(16);
     decodeUTFTime(valueBuffer, timeBuffer);
 
-    // Get the minutes to set the clock
+    // Get the minutes in BCD to set the clock
     uint8_t minTens = readFromBuffer(timeBuffer);
     uint8_t minOnes = readFromBuffer(timeBuffer);
     uint8_t minutes = ((minTens << 4) | minOnes);
-    // Get the hours to set the clock
+
+    // Get the hours in BCD to set the clock
     uint8_t hourTens = readFromBuffer(timeBuffer);
     uint8_t hourOnes = readFromBuffer(timeBuffer);
     uint8_t hours = ((hourTens << 4) | hourOnes);
-    // Get the day of week to set the clock
+
+    // Get the day of week in BCD to set the clock
     uint8_t dowTens = readFromBuffer(timeBuffer);
     uint8_t dowOnes = readFromBuffer(timeBuffer);
     uint8_t dow = ((dowTens << 4) | dowOnes);
-    // Get the day to set the clock
+
+    // Get the day in BCD to set the clock
     uint8_t dayTens = readFromBuffer(timeBuffer);
     uint8_t dayOnes = readFromBuffer(timeBuffer);
     uint8_t day = ((dayTens << 4) | dayOnes);
-    // Get the month to set the clock
+
+    // Get the month in BCD to set the clock
     uint8_t monthTens = readFromBuffer(timeBuffer);
     uint8_t monthOnes = readFromBuffer(timeBuffer);
     uint8_t month = ((monthTens << 4) | monthOnes);
-    // Get the year to set the clock
+
+    // Get the year in BCD to set the clock
     uint8_t yearDigit1 = readFromBuffer(timeBuffer);
     uint8_t yearDigit2 = readFromBuffer(timeBuffer);
     uint8_t yearDigit3 = readFromBuffer(timeBuffer);
@@ -137,26 +146,31 @@ void set_rtc_clock(circ_buf_t * valueBuffer) {
 // Set the alarm with the value in the buffer
 void set_alarm(circ_buf_t * valueBuffer) {
     // alarmEnables: 1 = minute, 2 = hour, 4 = dow, 8 = day, any combo works to enable multiple (add numbers)
+
     // Take the UTF-8 numbers and convert them to binary
     circ_buf_t * timeBuffer = createBuffer(10);
     decodeUTFTime(valueBuffer, timeBuffer);
 
-    // Get the alarm enable information
+    // Get the alarm enable information in BCD
     uint8_t alarmEnableTens = readFromBuffer(timeBuffer);
     uint8_t alarmEnableOnes = readFromBuffer(timeBuffer);
-    // Get the minutes to set the alarm
+
+    // Get the minutes in BCD to set the alarm
     uint8_t minTens = readFromBuffer(timeBuffer);
     uint8_t minOnes = readFromBuffer(timeBuffer);
     uint8_t minVal = ((minTens << 4) | minOnes);
-    // Get the hours to set the alarm
+
+    // Get the hours in BCD to set the alarm
     uint8_t hourTens = readFromBuffer(timeBuffer);
     uint8_t hourOnes = readFromBuffer(timeBuffer);
     uint8_t hourVal = ((hourTens << 4) | hourOnes);
-    // Get the day of week to set the alarm
+
+    // Get the day of week in BCD to set the alarm
     uint8_t dowTens = readFromBuffer(timeBuffer);
     uint8_t dowOnes = readFromBuffer(timeBuffer);
     uint8_t dowVal = ((dowTens << 4) | dowOnes);
-    // Get the day to set the alarm
+
+    // Get the day in BCD to set the alarm
     uint8_t dayTens = readFromBuffer(timeBuffer);
     uint8_t dayOnes = readFromBuffer(timeBuffer);
     uint8_t dayVal = ((dayTens << 4) | dayOnes);
@@ -169,7 +183,7 @@ void set_alarm(circ_buf_t * valueBuffer) {
     RTC_C->BCD2BIN = (alarmEnableTens << 4) | alarmEnableOnes;
     uint8_t alarmEnables = RTC_C->BCD2BIN;
 
-    // Enable the alarms that have a nonzero value passed in over bluetooth
+    // Enable the alarms corresponding to the enable number passed over bluetooth
     if (alarmEnables & 1) {
         RTC_C->AMINHR = RTC_C_AMINHR_MINAE;
     }
@@ -190,6 +204,7 @@ void set_alarm(circ_buf_t * valueBuffer) {
 
 // Set the timer with the hours & minutes in the buffer
 void set_timer(circ_buf_t * valueBuffer) {
+    // Decode the UTF-8 to BCD
     circ_buf_t * timeBuffer = createBuffer(4);
     decodeUTFTime(valueBuffer, timeBuffer);
 
@@ -197,6 +212,7 @@ void set_timer(circ_buf_t * valueBuffer) {
     uint8_t minTens = readFromBuffer(timeBuffer);
     uint8_t minOnes = readFromBuffer(timeBuffer);
     uint8_t minBCD = ((minTens << 4) | minOnes);
+
     // Get the hours in BCD to set the timer
     uint8_t hourTens = readFromBuffer(timeBuffer);
     uint8_t hourOnes = readFromBuffer(timeBuffer);
@@ -238,6 +254,7 @@ void set_timer(circ_buf_t * valueBuffer) {
     // Set hours;
     RTC_C->BIN2BCD = hours;
     RTC_C->AMINHR |= (RTC_C->BIN2BCD << 8);
+
     // Set flag so timer isn't repeated like an alarm
     TIMERFLAG = 1;
 }
@@ -247,7 +264,7 @@ void decodeUTFTime(circ_buf_t * inputBuffer, circ_buf_t * outputBuffer) {
     int i;
     for (i = 0; i < inputBuffer->size; i++) {
         uint8_t utfNumber = readFromBuffer(inputBuffer);
-        // Throw out colons (':')
+        // Throw out colons (':' = 0x3A in UTF-8)
         if (utfNumber != 0x3A) {
             // Subtract 30 from a UTF-8 number to get the integer value of it (0-9 corresponds to 30-39)
             addToBuffer(outputBuffer, (utfNumber - 48));

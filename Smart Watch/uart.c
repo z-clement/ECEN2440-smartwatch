@@ -15,8 +15,6 @@ extern volatile uint8_t RX1FLAG;
 extern volatile uint8_t TX1FLAG;
 extern volatile uint8_t RX2FLAG;
 extern volatile uint8_t TX2FLAG;
-extern volatile circ_buf_t * receiveBuffer;
-
 
 // Configure the EUSC_Ax module to operate in UART mode
 // uart_port = EUSCI_A2 or EUSCI_A1
@@ -33,7 +31,6 @@ void config_uart(EUSCI_A_Type * uart_port) {
     // Set baud rate & any other settings
     // Since the division factor is over 16, enable oversampling mode
     // From table 24-5 for 12 Mhz clock, UCBRx = 78, UCBRFx = 2, UCBRSx = 0x0
-    //EUSCI_A2->MCTLW |= (0x4E00 | 0x0020 | EUSCI_A_MCTLW_OS16);
     uart_port->MCTLW |= (0x0000 | 0x0020 | EUSCI_A_MCTLW_OS16);
     uart_port->BRW |= 78;
     uart_port->CTLW0 |= (EUSCI_A_CTLW0_SSEL__SMCLK);    // select SMCLK as BRCLK, and enable parity bit
